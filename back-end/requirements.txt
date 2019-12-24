@@ -4,7 +4,7 @@ chardet==3.0.4
 Click==7.0
 clickclick==1.2.2
 connexion==2.3.0
-ecdsa==0.13.2
+ecdsa==0.13.3
 Flask==1.0.3
 Flask-Cors==3.0.8
 fpdf==1.7.2
