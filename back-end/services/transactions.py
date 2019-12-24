@@ -5,7 +5,9 @@ from utilities.constants import EPC_BASE_URL, EPC_TRANSACTIONS_URL, MIMETYPES
 
 LOAN_FORMAT = "application/vnd.plm-2.0.0+json"
 
-#retrives property information by calling EPC transaction service
+"""" retrieves property information by calling EPC transaction service """
+
+
 def get_property_data(transaction_id, access_token="") -> dict:
     # If access token not provider then ask token_manager for current oAuth token
     if not access_token:
@@ -27,9 +29,11 @@ def get_property_data(transaction_id, access_token="") -> dict:
 
     return property_object
 
-#posts the updated loan data to EPC
-def post_response(status, propery_information, transaction_id, access_token="") -> dict:
 
+"""" posts the updated loan data to EPC """
+
+
+def post_response(status, property_information, transaction_id, access_token="") -> dict:
     # If access token not provider then ask token_manager for current oAuth token
     if not access_token:
         access_token = app.token_manager.get_token()
@@ -59,15 +63,15 @@ def post_response(status, propery_information, transaction_id, access_token="") 
         },
         "loanFormat": LOAN_FORMAT,
         "loan": {
-            "property": propery_information
+            "property": property_information
         }
     }
 
     response = patch(url=url, content_type=content_type, headers=headers, body=payload)
     return response
 
-def update_transaction_resource(status,resource_id, file_name, mimeType, transaction_id, access_token=""):
 
+def update_transaction_resource(status, resource_id, file_name, mime_type, transaction_id, access_token=""):
     if not access_token:
         access_token = app.token_manager.get_token()
 
@@ -81,18 +85,20 @@ def update_transaction_resource(status,resource_id, file_name, mimeType, transac
         "status": status,
         "resources": [
             {
-                "id":resource_id,
+                "id": resource_id,
                 "name": file_name,
-                "mimeType":mimeType
+                "mimeType": mime_type
             }
         ]
     }
     response = patch(url=url, content_type=content_type, headers=headers, body=payload)
     return response
 
-#internal function that prepares the resource transactions
-def _prepare_upload_file(file_name, transaction_id, access_token=""):
 
+""" internal function that prepares the resource transactions """
+
+
+def _prepare_upload_file(file_name, transaction_id, access_token=""):
     if not access_token:
         access_token = app.token_manager.get_token()
 
@@ -113,9 +119,11 @@ def _prepare_upload_file(file_name, transaction_id, access_token=""):
 
     return response
 
-#function to upload the PDF doc to EPC
-def upload_file(file_name, transaction_id, access_token):
 
+""" function to upload the PDF doc to EPC """
+
+
+def upload_file(file_name, transaction_id, access_token):
     prepare_upload_rsp = _prepare_upload_file(file_name, transaction_id, access_token)
 
     if prepare_upload_rsp.status_code == 200:
@@ -124,10 +132,10 @@ def upload_file(file_name, transaction_id, access_token):
         partner_resource_location = prepare_upload_rsp_obj[0].get("location", None)
         partner_resource_authorization_header = prepare_upload_rsp_obj[0].get("authorization", None)
         partner_resource_mimeType = prepare_upload_rsp_obj[0].get("mimeType", None)
-        partner_file_name =prepare_upload_rsp_obj[0].get("name", None)
+        partner_file_name = prepare_upload_rsp_obj[0].get("name", None)
 
     headers = {
-        "Authorization":  partner_resource_authorization_header,
+        "Authorization": partner_resource_authorization_header,
         "Content-Type": partner_resource_mimeType
     }
 
@@ -136,7 +144,8 @@ def upload_file(file_name, transaction_id, access_token):
     response = put_file(url, file_name, headers=headers)
 
     if response.status_code == 200:
-        update_resource_response = update_transaction_resource('completed', resource_id, partner_file_name, partner_resource_mimeType, transaction_id, access_token)
+        update_resource_response = update_transaction_resource('completed', resource_id, partner_file_name,
+                                                               partner_resource_mimeType, transaction_id, access_token)
         if update_resource_response.status_code == 200:
             return resource_id
 

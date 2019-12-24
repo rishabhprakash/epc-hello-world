@@ -9,32 +9,7 @@ servers:
     description: Local development server
 
 paths:
-  /auth:
-    post:
-      summary: Return JSON Web Token
-      tags:
-        - Authentication and Authorization
-      operationId: controllers.auth.generate_token
-      requestBody:
-        description: Authorization request
-        content: 
-          'application/json':
-            schema:
-              $ref: '#/components/schemas/AuthorizationRequest'
-      responses:
-        '200':
-          description: Authorization response
-          content: 
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/AuthorizationResponse'
-        '400':
-          description: Bad Request
-        '500':
-          description: Internal Server Error
-
-
-  /origins/{id}:
+  /origins/{origin_id}:
     get:
       operationId: "controllers.origins.retrieve"
       tags: 
@@ -42,13 +17,13 @@ paths:
       summary: Returns transaction origination information 
       description: Returns transaction origination information to be rendered on the user-interface
       parameters:
-      - name: id
+      - name: origin_id
         in: path
         description: Unique origin identifier recieved from EPC Host Adapter
         required: true
         schema:
           type: string
-      - name: partnerAccessToken
+      - name: partner_access_token
         in: query
         description: Partner access token 
         required: true
@@ -68,7 +43,7 @@ paths:
         '500':
           description: Internal Server Error
 
-  /status/{id}:
+  /status/{transaction_id}:
     get:
       operationId: "controllers.status.retrieve"
       tags:
@@ -76,7 +51,7 @@ paths:
       summary: Returns the status of transaction
       description: Returns transaction status
       parameters:
-      - name: id
+      - name: transaction_id
         in: path
         description: Unique transaction identifier recieved from EPC Host Adapter
         required: true
