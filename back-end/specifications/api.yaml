@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: EPC 2.0 Hello World Application Application
+  description: Specification for REST API powering our EPC 2.0 Hello World Application
+  version: 0.0.0
+
+servers:
+  - url: http://localhost:8080/v1
+    description: Local development server
+
+paths:
+  /auth:
+    post:
+      summary: Return JSON Web Token
+      tags:
+        - Authentication and Authorization
+      operationId: controllers.auth.generate_token
+      requestBody:
+        description: Authorization request
+        content: 
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/AuthorizationRequest'
+      responses:
+        '200':
+          description: Authorization response
+          content: 
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+
+  /origins/{id}:
+    get:
+      operationId: "controllers.origins.retrieve"
+      tags: 
+        - Origin
+      summary: Returns transaction origination information 
+      description: Returns transaction origination information to be rendered on the user-interface
+      parameters:
+      - name: id
+        in: path
+        description: Unique origin identifier recieved from EPC Host Adapter
+        required: true
+        schema:
+          type: string
+      - name: partnerAccessToken
+        in: query
+        description: Partner access token 
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A JSON object containing transaction origin information to be rendered on the user-interface
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not Found
+        '500':
+          description: Internal Server Error
+
+  /status/{id}:
+    get:
+      operationId: "controllers.status.retrieve"
+      tags:
+        - Status
+      summary: Returns the status of transaction
+      description: Returns transaction status
+      parameters:
+      - name: id
+        in: path
+        description: Unique transaction identifier recieved from EPC Host Adapter
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A JSON object containing transaction status information to be rendered on the user-interface
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusRsp'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not Found
+        '500':
+          description: Internal Server Error
+
+  /webhooks:
+    post:
+      operationId: "controllers.webhooks.process"
+      tags: 
+        - Webhooks
+      summary: Processes incoming transaction webhook notifications
+      description: Processes incoming transaction webhook notifications
+      requestBody:
+        description: Incoming webhook notification payload/request request request body 
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/TransactionWebhook'
+      responses:
+        '200':
+          description: Webhook was successfully recieved and processed
+
+
+components:
+  schemas:
+    AuthorizationRequest:
+      type: object
+      required: 
+      - username
+      - password
+      - grant_type
+      properties:
+        username:
+          type: string
+          description: Username for authenticating user
+          example: rprakash
+        password:
+          type: string
+          description: Password for authenticating user
+          example: password
+        grant_type:
+          type: string
+          description: oAuth grant type
+          example: password
+          
+    AuthorizationResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JSON Web Token
+        token_type:
+          type: string
+          description: Type of authorization token
+        expires_in:
+          type: integer
+          description: epoch/unixtime expiry time
+
+    Loan:
+      type: object
+      properties:
+        property:
+          type: object
+          description: Sample loan property information
+          properties:
+            streetAddress:
+              type: string
+              example: 1951 Telegraph Avenue
+            city:
+              type: string
+              example: Oakland
+            state:
+              type: string
+              example: CA
+
+    StatusRsp:
+      type: object
+      properties:
+        status:
+          type: string
+          example: Completed
+
+    TransactionWebhook:
+      type: object
+      required: 
+      - eventType
+      - eventTime
+      - meta
+      properties:
+        eventType:
+          type: string
+          description: Webhook notification/event type
+        eventTime:
+          type: string
+          description: Date-time when event occured
+        meta:
+          type: object
+          description: Metadata about the webhook notification/event
+          properties:
+            schema:
+              $ref: '#/components/schemas/TransactionWebhookMetadata'
+
+    TransactionWebhookMetadata:
+      type: object
+      description: Metadata about the webhook notification/event
+      required:
+      - resourceType
+      - resourceId
+      - resourceRef
+      - instanceId
+      properties:
+        resourceType:
+          type: string
+          description: Resource type on which event occurred
+        resourceId:
+          type: string
+          description: Unique identifier for resource on which event occurred
+        resourceRef:
+          type: string
+          description: Resource reference/URI for resource on which event occurred
+        instanceId:
+          type: string
+          description: Name of product sending the Transaction Webhook
+
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: auth.decode_token
