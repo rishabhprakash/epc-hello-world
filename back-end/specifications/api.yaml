@@ -11,7 +11,7 @@ servers:
 paths:
   /origins/{origin_id}:
     get:
-      operationId: "controllers.origins.retrieve"
+      operationId: controllers.origins.retrieve
       tags: 
         - Origin
       summary: Returns transaction origination information 
@@ -45,7 +45,7 @@ paths:
 
   /status/{transaction_id}:
     get:
-      operationId: "controllers.status.retrieve"
+      operationId: controllers.status.retrieve
       tags:
         - Status
       summary: Returns the status of transaction
@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusRsp'
+                $ref: '#/components/schemas/StatusResponse'
         '401':
           description: Unauthorized
         '404':
@@ -73,7 +73,7 @@ paths:
 
   /webhooks:
     post:
-      operationId: "controllers.webhooks.process"
+      operationId: controllers.webhooks.process
       tags: 
         - Webhooks
       summary: Processes incoming transaction webhook notifications
@@ -91,39 +91,6 @@ paths:
 
 components:
   schemas:
-    AuthorizationRequest:
-      type: object
-      required: 
-      - username
-      - password
-      - grant_type
-      properties:
-        username:
-          type: string
-          description: Username for authenticating user
-          example: rprakash
-        password:
-          type: string
-          description: Password for authenticating user
-          example: password
-        grant_type:
-          type: string
-          description: oAuth grant type
-          example: password
-          
-    AuthorizationResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: JSON Web Token
-        token_type:
-          type: string
-          description: Type of authorization token
-        expires_in:
-          type: integer
-          description: epoch/unixtime expiry time
-
     Loan:
       type: object
       properties:
@@ -141,7 +108,7 @@ components:
               type: string
               example: CA
 
-    StatusRsp:
+    StatusResponse:
       type: object
       properties:
         status:
