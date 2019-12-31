@@ -2,20 +2,15 @@ import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 
 import {makeStyles} from '@material-ui/core/styles';
-import {
-  CssBaseline,
-  Paper,
-  Grid,
-} from '@material-ui/core';
+import {CssBaseline, Paper, Grid} from '@material-ui/core';
 
 import HeaderBar from '../HeaderBar/HeaderBar';
 import Copyright from '../Copyright/Copyright';
 import Feedback from '../Feedback/Feedback';
 import {navigate} from '@reach/router';
 
-
 // Define component styling
-const useStyles = makeStyles( (theme) => ({
+const useStyles = makeStyles((theme) => ({
   layout: {
     width: 'auto',
     marginLeft: theme.spacing(2),
@@ -36,33 +31,43 @@ const useStyles = makeStyles( (theme) => ({
       padding: theme.spacing(3),
     },
   },
-}),
-);
+}));
 
 // Application loading component - routes to order/details page
 const LoadingPage = (props) => {
   // Bind styling
   const classes = useStyles();
 
-  // React to transaction ID update - navigate to corresponding page
-  useEffect(() => {
-    // If there is no transaction ID available in the origination context -
-    // navigate to the "New Order" page
-    if (props.transactionId === null) {
-      navigate('/order');
+  // Instantiate constant with Host API connection
+  const host = props.host;
 
-    // Else if - there is a transactionId string available in the origination
-    // context - retrieve the status information of that transaction and
-    // navigate to the "View Order Details" page
-    } else if (typeof(props.transactionId) === 'string') {
-      // Navigate to details page - passing transaction ID as path param
-      navigate(`/details/${props.transactionId}`);
+  // Function to instantiate application state with origination context
+  const setOriginationContext = async () => {
+    // Instantiate instance of host application interface
+    // and invoke access to origination context
+    const proxy = await host;
+    const originationData = await proxy.getTransactionOrigin();
+    console.log(originationData);
+
+    // Access and instantiate application state with originating context
+    const currentTransactionId = originationData.transactionId;
+
+    if (currentTransactionId) {
+      // If in context of existing transaction - navigate to details view
+      navigate(`/details/${currentTransactionId}`);
+    } else {
+      // Else - navigate to new order view
+      navigate('/order');
     }
-  }, [props.transactionId]);
+  };
+
+  // Use Effect hook to initialize origination context at first page render
+  useEffect(() => {
+    setOriginationContext();
+  }, []);
 
   return (
     <React.Fragment>
-
       <CssBaseline />
 
       <HeaderBar title='ZipRight' />
@@ -72,9 +77,9 @@ const LoadingPage = (props) => {
           <Grid
             container
             spacing={0}
-            direction="column"
-            alignItems="center"
-            justify="center"
+            direction='column'
+            alignItems='center'
+            justify='center'
             style={{minHeight: '40vh'}}
           >
             <Grid item xs={3}>
@@ -84,12 +89,12 @@ const LoadingPage = (props) => {
         </Paper>
         <Copyright />
       </main>
-
     </React.Fragment>
   );
 };
 
 LoadingPage.propTypes = {
+  host: PropTypes.object.isRequired,
   transactionId: PropTypes.string,
 };
 
