@@ -1,13 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {navigate} from '@reach/router';
 
 import {makeStyles} from '@material-ui/core/styles';
-import {
-  CssBaseline,
-  Paper,
-  Button,
-  Typography,
-} from '@material-ui/core';
+import {CssBaseline, Paper, Button, Typography} from '@material-ui/core';
 
 import HeaderBar from '../HeaderBar/HeaderBar';
 import Copyright from '../Copyright/Copyright';
@@ -18,10 +14,9 @@ import WorkflowStepper from '../WorkflowStepper/WorkflowStepper';
 
 import OriginService from '../../services/OriginService/OriginService';
 import StatusService from '../../services/StatusService/StatusService';
-import {navigate} from '@reach/router';
 
 // Define component styling
-const useStyles = makeStyles( (theme) => ({
+const useStyles = makeStyles((theme) => ({
   layout: {
     width: 'auto',
     marginLeft: theme.spacing(2),
@@ -58,8 +53,10 @@ const NewOrderPage = (props) => {
 
   // Initialize state variables
   const [activeStep, setActiveStep] = useState(0);
-  const [initializationInformation,
-    setInitializationInformation] = React.useState(null);
+  const [
+    initializationInformation,
+    setInitializationInformation,
+  ] = React.useState(null);
   const [orderStatus, setOrderStatus] = useState(0);
 
   // Initialize connection to Host JavaScript API
@@ -82,25 +79,20 @@ const NewOrderPage = (props) => {
   // Kick off origin data initializor on initial page render
   useEffect(() => {
     initializeOriginInformation();
-  }, [],
-  );
+  }, []);
 
   // New Order navigation steps
-  const steps = [
-    'Borrower Information',
-    'Loan Information',
-    'Verify Zipcode',
-  ];
+  const steps = ['Borrower Information', 'Loan Information', 'Verify Zipcode'];
 
   // Handler to render component relevant to current workflow step
   const getStepContent = (step, initializationInformation) => {
     switch (step) {
       case 0:
-        return <BorrowerInformation loan={initializationInformation}/>;
+        return <BorrowerInformation loan={initializationInformation} />;
       case 1:
-        return <LoanInformation loan={initializationInformation}/>;
+        return <LoanInformation loan={initializationInformation} />;
       case 2:
-        return <VerifyZipcode submit={false}/>;
+        return <VerifyZipcode submit={false} />;
       default:
         throw new Error('Unknown step');
     }
@@ -128,29 +120,40 @@ const NewOrderPage = (props) => {
 
   // Order placement function
   const placeOrder = async () => {
+    // Increment active step
     handleNext();
 
+    // Create new transaction
     const proxy = await host;
     const transactionResponse = await proxy.createTransaction({
       request: {
         options: {
+          // Canonical option - requestType
           requestType: 'VALIDATE_ZIPCODE',
+
+          // Custom options
+          customStringOption: 'test',
+          customNumericOption: 100,
+          customBooleanOption: true,
+          customObjectOption: {
+            customStringOption: 'test',
+            customNumericOption: 100,
+            customBooleanOption: true,
+          },
         },
       },
     });
 
+    // Poll for status of transaction processing once created
     const transactionId = transactionResponse.id;
-    console.log(`Transaction ID: ${transactionId}`);
-
     const statusTracker = StatusService(transactionId);
 
     try {
-      const response = await statusTracker.pollStatus();
+      await statusTracker.pollStatus();
       setOrderStatus(1);
 
-      await new Promise((resolve) => setTimeout((resolve), 2000));
-      console.log(response);
-
+      // Wait a couple seconds before navigating to order details page
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       navigate(`details/${transactionId}`);
     } catch (err) {
       console.log(err);
@@ -160,57 +163,53 @@ const NewOrderPage = (props) => {
   // Render main view
   return (
     <React.Fragment>
-
       <CssBaseline />
 
       <HeaderBar title='ZipRight' host={host} />
 
       <main className={classes.layout}>
         <Paper className={classes.paper}>
-          <Typography component="h1" variant="h4" align="center">
-              New Order
+          <Typography component='h1' variant='h4' align='center'>
+            New Order
           </Typography>
 
           <WorkflowStepper activeStep={activeStep} steps={steps} />
 
           <React.Fragment>
-            {activeStep === steps.length ?
-                (
-                  <React.Fragment>
-                    <VerifyZipcode
-                      submit={true}
-                      message={getStatusText()}
-                      complete={orderStatus === 0 ? false : true}
-                    />
-                  </React.Fragment>
-                ):
-                (
-                  <React.Fragment>
-                    {getStepContent(activeStep, initializationInformation)}
-                    <div className={classes.buttons}>
-                      {activeStep !== 0 && (
-                        <Button onClick={handleBack} className={classes.button}>
-                            Back
-                        </Button>
-                      )}
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={activeStep === steps.length - 1 ?
-                          placeOrder : handleNext}
-                      >
-                        {activeStep === steps.length - 1 ?
-                        'Place order' : 'Next'}
-                      </Button>
-                    </div>
-                  </React.Fragment>
-                )}
+            {activeStep === steps.length ? (
+              <React.Fragment>
+                <VerifyZipcode
+                  submit={true}
+                  message={getStatusText()}
+                  complete={orderStatus === 0 ? false : true}
+                />
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {getStepContent(activeStep, initializationInformation)}
+                <div className={classes.buttons}>
+                  {activeStep !== 0 && (
+                    <Button onClick={handleBack} className={classes.button}>
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    className={classes.button}
+                    onClick={
+                      activeStep === steps.length - 1 ? placeOrder : handleNext
+                    }
+                  >
+                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
+                  </Button>
+                </div>
+              </React.Fragment>
+            )}
           </React.Fragment>
         </Paper>
         <Copyright />
       </main>
-
     </React.Fragment>
   );
 };

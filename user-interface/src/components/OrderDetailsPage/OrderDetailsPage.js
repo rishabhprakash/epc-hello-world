@@ -13,6 +13,7 @@ import {
   Button,
 } from '@material-ui/core';
 
+import PageFeedback from './../PageFeedback/PageFeedback';
 import HeaderBar from '../HeaderBar/HeaderBar';
 import Copyright from '../Copyright/Copyright';
 import Feedback from '../Feedback/Feedback';
@@ -69,7 +70,8 @@ const OrderDetailsPage = (props) => {
   // Bind styling
   const classes = useStyles();
 
-  // Initialize state variables
+  // Initialize Order Details Page state variables
+  const [fullPageLoad, setFullPageLoad] = useState(false);
   const [orderInformation, setOrderInformation] = useState(null);
 
   // Initialize connection to Host JavaScript API
@@ -103,22 +105,34 @@ const OrderDetailsPage = (props) => {
 
   // Function to invoke Host application to launch report in new tab
   const viewReport = async () => {
+    // Show full page spinner
+    setFullPageLoad(true);
+
     // Await host connection resolution
     const proxy = await host;
 
     // Invoke host method to open report in new tab - passing report resource ID
-    const openResourceInModalResponse = await proxy.openResource({
-      target: {
-        entityId: orderInformation.resource_id,
-        entityType: 'urn:elli:skydrive',
-      },
-    });
+    try {
+      await proxy.openResource({
+        target: {
+          entityId: orderInformation.resource_id,
+          entityType: 'urn:elli:skydrive',
+        },
+      });
+    } catch (err) {
+      console.logg(err);
+    }
 
-    return openResourceInModalResponse;
+    // Hide full page spinner
+    setFullPageLoad(false);
   };
 
   return (
     <React.Fragment>
+      {fullPageLoad == true && (
+        <PageFeedback open={fullPageLoad} message='Loading...' />
+      )}
+
       <CssBaseline />
 
       <HeaderBar title='ZipRight' host={host} />
