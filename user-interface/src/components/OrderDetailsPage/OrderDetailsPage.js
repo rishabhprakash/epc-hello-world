@@ -1,12 +1,11 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
+import {navigate} from '@reach/router';
 
 import {makeStyles} from '@material-ui/core/styles';
 import {
   CssBaseline,
+  Grid,
   Paper,
   Card,
   CardContent,
@@ -20,7 +19,8 @@ import Feedback from '../Feedback/Feedback';
 
 import StatusService from '../../services/StatusService/StatusService';
 
-const useStyles = makeStyles( (theme) => ({
+// Define component styling
+const useStyles = makeStyles((theme) => ({
   appBar: {
     position: 'relative',
   },
@@ -45,21 +45,23 @@ const useStyles = makeStyles( (theme) => ({
     },
   },
   card: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
     padding: theme.spacing(2),
-    justifyContent: 'center',
   },
   property: {
-    marginTop: 24,
-    fontSize: 12,
+    marginTop: 6,
+    fontSize: 16,
   },
   value: {
     marginTop: 6,
-    fontSize: 10,
+    fontSize: 12,
     color: theme.palette.text.secondary,
   },
   button: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
 }));
 
@@ -84,9 +86,20 @@ const OrderDetailsPage = (props) => {
   };
 
   // Invoke order information initialization on initial render
-  useEffect( () => {
+  useEffect(() => {
     initializeOrderInformation(props.transactionId);
   }, []);
+
+  // Order status to user-friendly status resolver
+  const getStatusText = () => {
+    const currentStatus = orderInformation.status;
+
+    if (currentStatus === 'DOCUMENT_UPLOADED') {
+      return `Verification Completed`;
+    } else {
+      // TODO: Handle other statuses
+    }
+  };
 
   // Function to invoke Host application to launch report in new tab
   const viewReport = async () => {
@@ -106,49 +119,79 @@ const OrderDetailsPage = (props) => {
 
   return (
     <React.Fragment>
-
       <CssBaseline />
 
       <HeaderBar title='ZipRight' host={host} />
 
       <main className={classes.layout}>
         <Paper className={classes.paper}>
-          <Typography component="h1" variant="h4" align="center">
+          <Typography component='h1' variant='h4' align='center'>
             View Order Details
           </Typography>
           <Card className={classes.card}>
             <CardContent>
               <React.Fragment>
-                {orderInformation === null ?
-                  (
-                    <Feedback message="Loading order details..." />
-                  ):
-                  (
-                    <React.Fragment>
-                      <Typography className={classes.property}>
-                        Order Status:
-                      </Typography>
-                      <Typography className={classes.value}>
-                        Completed
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={viewReport}
-                      >
-                        View Verification Report
-                      </Button>
-                    </React.Fragment>
-                  )
-                }
+                {orderInformation === null ? (
+                  <Feedback message='Loading order details...' />
+                ) : (
+                  <React.Fragment>
+                    <Grid container spacing={3}>
+                      <Grid item xs={6}>
+                        <Grid container justify='center'>
+                          <Typography className={classes.property}>
+                            Order Status
+                          </Typography>
+                        </Grid>
+                        <Grid container justify='center'>
+                          <Typography className={classes.value}>
+                            {getStatusText()}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Grid container justify='center'>
+                          <Typography className={classes.property}>
+                            Order Number
+                          </Typography>
+                        </Grid>
+                        <Grid container justify='center'>
+                          <Typography className={classes.value}>
+                            {props.transactionId}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Grid container justify='center'>
+                          <Button
+                            variant='contained'
+                            color='primary'
+                            className={classes.button}
+                            onClick={viewReport}
+                          >
+                            View Verification Report
+                          </Button>
+                        </Grid>
+                        <Grid container justify='center'>
+                          <Button
+                            variant='contained'
+                            className={classes.button}
+                            onClick={() => {
+                              navigate('/order');
+                            }}
+                          >
+                            Re-verify Zipcode
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </React.Fragment>
+                )}
               </React.Fragment>
             </CardContent>
           </Card>
         </Paper>
         <Copyright />
       </main>
-
     </React.Fragment>
   );
 };
