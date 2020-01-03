@@ -90,6 +90,8 @@ const OrderDetailsPage = (props) => {
   // Invoke order information initialization on initial render
   useEffect(() => {
     initializeOrderInformation(props.transactionId);
+
+    // eslint-disable-next-line
   }, []);
 
   // Order status to user-friendly status resolver
@@ -113,7 +115,7 @@ const OrderDetailsPage = (props) => {
 
     // Invoke host method to open report in new tab - passing report resource ID
     try {
-      await proxy.openResource({
+      await proxy.openResourceInModal({
         target: {
           entityId: orderInformation.resource_id,
           entityType: 'urn:elli:skydrive',
@@ -129,7 +131,7 @@ const OrderDetailsPage = (props) => {
 
   return (
     <React.Fragment>
-      {fullPageLoad == true && (
+      {fullPageLoad === true && (
         <PageFeedback open={fullPageLoad} message='Loading...' />
       )}
 

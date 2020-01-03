@@ -64,6 +64,8 @@ const LoadingPage = (props) => {
   // Use Effect hook to initialize origination context at first page render
   useEffect(() => {
     setOriginationContext();
+
+    // eslint-disable-next-line
   }, []);
 
   return (

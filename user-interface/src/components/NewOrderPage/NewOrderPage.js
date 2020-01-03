@@ -79,6 +79,8 @@ const NewOrderPage = (props) => {
   // Kick off origin data initializor on initial page render
   useEffect(() => {
     initializeOriginInformation();
+
+    // eslint-disable-next-line
   }, []);
 
   // New Order navigation steps

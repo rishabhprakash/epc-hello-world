@@ -36,9 +36,11 @@ def post(url, content_type, body, headers=None, parameters=None) -> dict:
     res = None
     try:
         if content_type == MIMETYPES.get('JSON'):
-            res = requests.post(url, headers=headers, params=parameters, json=body)
+            res = requests.post(url, headers=headers,
+                                params=parameters, json=body)
         elif content_type == MIMETYPES.get('FORM'):
-            res = requests.post(url, headers=headers, params=parameters, data=body)
+            res = requests.post(url, headers=headers,
+                                params=parameters, data=body)
 
         # If the response was successful, no Exception will be raised
         res.raise_for_status()
@@ -65,9 +67,11 @@ def patch(url, content_type, body, headers=None, parameters=None) -> dict:
     res = None
     try:
         if content_type == MIMETYPES.get('JSON'):
-            res = requests.patch(url, headers=headers, params=parameters, json=body)
+            res = requests.patch(url, headers=headers,
+                                 params=parameters, json=body)
         elif content_type == MIMETYPES.get('FORM'):
-            res = requests.patch(url, headers=headers, params=parameters, data=body)
+            res = requests.patch(url, headers=headers,
+                                 params=parameters, data=body)
 
         # If the response was successful, no Exception will be raised
         res.raise_for_status()
@@ -94,11 +98,14 @@ def patch(url, content_type, body, headers=None, parameters=None) -> dict:
 
 def put_file(url, file_name, headers=None, parameters=None) -> dict:
     res = None
-    stream = open(file_name, 'rb')
-    files = {'file': stream}
+    fileContent = None
+
+    with open(file_name, mode='rb') as file:
+        fileContent = file.read()
 
     try:
-        res = requests.put(url, headers=headers, params=parameters, data=files)
+        res = requests.put(url, headers=headers,
+                           params=parameters, data=fileContent)
 
         # If the response was successful, no Exception will be raised
         res.raise_for_status()
