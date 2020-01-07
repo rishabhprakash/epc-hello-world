@@ -17,25 +17,27 @@ const HostConnection = async () => {
   // Implementation for transaction.getOrigin method exposed by this service
   // Note the special handling for origination context TTL of 300 seconds
   const _getTransactionOrigin = async () => {
-    const currentDate = new Date();
+    // Instantiate current time to check for origin expiry
+    const currentTime = new Date();
+    // Instantiate 10 second buffer under 300 second origin TTL - in miliseconds
+    const bufferTime = 290 * 1000;
 
     // If this isn't the first time accessing origination context
     // and the current origination context has expired
-    if (originExpiry && currentDate > originExpiry) {
+    if (originExpiry && currentTime > originExpiry) {
       // Refresh the origination context
       originContext = await TransactionObject.refreshOrigin();
 
-      // Reset the origination context expiry time
-      originExpiry.setSeconds(originExpiry.getSeconds() + 280);
+      // Reset the origination context expiry time with 10 second buffer
+      originExpiry = new Date(new Date().getTime() + bufferTime);
 
       // Else - if this is the first time accessing origination context
     } else {
       // Initialize the origination context
       originContext = await TransactionObject.getOrigin();
 
-      // Initialize expiry time with a 20 second buffer under the 300 second TTL
-      originExpiry = new Date();
-      originExpiry.setSeconds(originExpiry.getSeconds() + 280);
+      // Initialize expiry time with 10 second buffer
+      originExpiry = new Date(new Date().getTime() + bufferTime);
     }
 
     return originContext;
