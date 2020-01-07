@@ -61,7 +61,7 @@ The sample integration performs a series of simple tasks:
 
 ### Back-End:
 
-1. Python 3
+1. Python 3: https://www.python.org/downloads/
 2. Flask/Connexion: https://github.com/zalando/connexion
 
 ---
@@ -141,7 +141,7 @@ tunnels:
 ### **Step 1**: Clone the sample integration source
 
 ```
-git clone http://githubdev.dco.elmae/rprakash2/epc-hello-world.git
+git clone https://github.com/rishabhprakash/epc-hello-world.git
 ```
 
 <br>
