@@ -6,7 +6,7 @@ clickclick==1.2.2
 connexion==2.3.0
 ecdsa==0.13.3
 Flask==1.0.3
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 fpdf==1.7.2
 future==0.17.1
 idna==2.8
