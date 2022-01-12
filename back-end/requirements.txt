@@ -16,7 +16,7 @@ Jinja2==2.10.1
 jsonschema==2.6.0
 MarkupSafe==1.1.1
 openapi-spec-validator==0.2.7
-pipenv==2018.11.26
+pipenv==2022.1.8
 pyasn1==0.4.5
 pyrsistent==0.15.5
 python-dotenv==0.10.3
